@@ -8,6 +8,7 @@ from .eva2_coco_cascade_mask_rcnn_vitdet_b_4attn_1024_lrd0p7_10k_bs2_lr5e7 impor
     lr_multiplier,
     model,
     train,
+    optimizer,
 )
 
 # One-shot AP50 experiment: prioritize small-object visibility and gun recall.
