@@ -31,17 +31,27 @@ dataloader.train.mapper.augmentations = [
 # 2) Class-imbalance mitigation for rare gun instances.
 dataloader.train.sampler = L(RepeatFactorTrainingSampler)(
     repeat_factors=L(RepeatFactorTrainingSampler.repeat_factors_from_category_frequency)(
-        dataset_dicts="${dataloader.train.dataset}", repeat_thresh=0.001
+        dataset_dicts="${dataloader.train.dataset}", repeat_thresh=0.01
     )
 )
 
-# 3) Recover stricter localization quality in cascade matching.
+# 3) Smaller RPN anchors (image-space) for tiny objects (e.g. guns) at p2–p6.
+#    Keeps one size per level so num_anchors=3 (× aspect ratios) is unchanged.
+model.proposal_generator.anchor_generator.sizes = [
+    [16],
+    [32],
+    [64],
+    [128],
+    [256],
+]
+
+# 4) Recover stricter localization quality in cascade matching.
 model.roi_heads.proposal_matchers = [
     L(Matcher)(thresholds=[th], labels=[0, 1], allow_low_quality_matches=False)
     for th in [0.5, 0.6, 0.7]
 ]
 
-# 4) Moderate schedule extension for convergence.
+# 5) Moderate schedule extension for convergence.
 train.max_iter = 80000
 lr_multiplier.scheduler.milestones = [
     train.max_iter * 8 // 10,
