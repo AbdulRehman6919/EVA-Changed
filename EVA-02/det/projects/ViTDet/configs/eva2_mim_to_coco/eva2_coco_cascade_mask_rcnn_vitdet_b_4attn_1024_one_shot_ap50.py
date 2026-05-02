@@ -45,13 +45,39 @@ model.proposal_generator.anchor_generator.sizes = [
     [256],
 ]
 
-# 4) Recover stricter localization quality in cascade matching.
+# 4) Revert cascade matchers to canonical thresholds so noisy small-gun
+#    proposals still qualify as positives in stage 1 / stage 2.
 model.roi_heads.proposal_matchers = [
     L(Matcher)(thresholds=[th], labels=[0, 1], allow_low_quality_matches=False)
-    for th in [0.5, 0.6, 0.7]
+    for th in [0.4, 0.5, 0.6]
 ]
 
-# 5) Moderate schedule extension for convergence.
+# 5) Cascade-level Soft-NMS (CascadeROIHeads.forward consults these flags,
+#    not the per-predictor flags). class_wise=True prevents adjacent Armed
+#    and Gun detections from suppressing each other.
+model.roi_heads.use_soft_nms = True
+model.roi_heads.method = "linear"
+model.roi_heads.iou_threshold = 0.3
+model.roi_heads.sigma = 0.5
+model.roi_heads.class_wise = True
+
+# 6) RPN proposal capacity: more small-object proposals reach the cascade.
+model.proposal_generator.pre_nms_topk = (4000, 2000)
+model.proposal_generator.post_nms_topk = (2000, 2000)
+
+# 7) ROI sampling: more positive RoIs per image so rare classes (Gun) get
+#    enough supervision in each step.
+model.roi_heads.batch_size_per_image = 512
+model.roi_heads.positive_fraction = 0.5
+
+# 8) Focal classification loss for all three cascade predictors. Down-weights
+#    easy Armed/Unarmed examples so Gun gets stronger gradient.
+for _bp in model.roi_heads.box_predictors:
+    _bp.use_focal_loss = True
+    _bp.focal_loss_alpha = 0.25
+    _bp.focal_loss_gamma = 2.0
+
+# 9) Moderate schedule extension for convergence.
 train.max_iter = 80000
 lr_multiplier.scheduler.milestones = [
     train.max_iter * 8 // 10,

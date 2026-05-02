@@ -268,6 +268,9 @@ class FastRCNNOutputLayers(nn.Module):
         soft_nms_method: str = "linear",
         soft_nms_sigma: float = 0.5,
         soft_nms_iou_threshold: float = 0.3,
+        use_focal_loss: bool = False,
+        focal_loss_alpha: float = 0.25,
+        focal_loss_gamma: float = 2.0,
     ):
         """
         NOTE: this interface is experimental.
@@ -330,6 +333,9 @@ class FastRCNNOutputLayers(nn.Module):
         self.use_fed_loss = use_fed_loss
         self.use_sigmoid_ce = use_sigmoid_ce
         self.fed_loss_num_classes = fed_loss_num_classes
+        self.use_focal_loss = use_focal_loss
+        self.focal_loss_alpha = focal_loss_alpha
+        self.focal_loss_gamma = focal_loss_gamma
 
         if self.use_fed_loss:
             assert self.use_sigmoid_ce, "Please use sigmoid cross entropy loss with federated loss"
@@ -415,6 +421,8 @@ class FastRCNNOutputLayers(nn.Module):
 
         if self.use_sigmoid_ce:
             loss_cls = self.sigmoid_cross_entropy_loss(scores, gt_classes)
+        elif self.use_focal_loss:
+            loss_cls = self.focal_cross_entropy_loss(scores, gt_classes)
         else:
             loss_cls = cross_entropy(scores, gt_classes, reduction="mean")
 
@@ -495,6 +503,28 @@ class FastRCNNOutputLayers(nn.Module):
 
         loss = torch.sum(cls_loss * weight) / N
         return loss
+
+    def focal_cross_entropy_loss(self, pred_class_logits, gt_classes):
+        """Softmax-based focal loss over (K + 1) classes (K foreground + background).
+
+        Helps rare/hard classes (e.g., Gun) by down-weighting easy examples.
+
+        Args:
+            pred_class_logits: shape (N, K + 1) raw logits.
+            gt_classes: shape (N,) long tensor with values in [0, K].
+        """
+        if pred_class_logits.numel() == 0:
+            return pred_class_logits.new_zeros([1])[0]
+
+        log_probs = F.log_softmax(pred_class_logits, dim=-1)
+        probs = log_probs.exp()
+        N = pred_class_logits.shape[0]
+        gt_idx = gt_classes.long()
+        log_pt = log_probs[torch.arange(N, device=log_probs.device), gt_idx]
+        pt = probs[torch.arange(N, device=probs.device), gt_idx]
+        focal_weight = (1.0 - pt).pow(self.focal_loss_gamma)
+        loss = -self.focal_loss_alpha * focal_weight * log_pt
+        return loss.mean()
 
     def box_reg_loss(self, proposal_boxes, gt_boxes, pred_deltas, gt_classes):
         """
