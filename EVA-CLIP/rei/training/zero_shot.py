@@ -44,7 +44,7 @@ def run(model, classifier, dataloader, args):
                 images = images.to(dtype=cast_dtype)
             target = target.to(args.device)
 
-            with autocast():
+            with autocast("cuda"):
                 # predict
                 if args.distributed:
                     image_features = model.module.encode_image(images)
