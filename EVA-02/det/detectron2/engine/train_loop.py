@@ -410,7 +410,7 @@ class AMPTrainer(SimpleTrainer):
         data_time = time.perf_counter() - start
 
 #        with autocast(dtype=torch.bfloat16):
-        with autocast("cuda"):
+        with autocast("cuda",enabled=False):
             loss_dict = self.model(data)
             if isinstance(loss_dict, torch.Tensor):
                 losses = loss_dict
