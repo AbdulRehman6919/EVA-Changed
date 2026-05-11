@@ -117,7 +117,7 @@ def train_one_epoch(model, data, epoch, optimizer, scaler, scheduler, args, tb_w
         else:
             optimizer.zero_grad()
 
-        with autocast():
+        with autocast("cuda",enabled=False):
             image_features, text_features, logit_scale = model(images, texts)
             total_loss, acc = loss(image_features, text_features, logit_scale)
             clip_loss = total_loss.clone().detach()
@@ -260,7 +260,7 @@ def evaluate(model, data, epoch, args, tb_writer=None):
                 images = images.to(device=device, dtype=cast_dtype, non_blocking=True)
                 texts = texts.to(device=device, non_blocking=True)
 
-                with autocast():
+                with autocast("cuda",enabled=False):
                     image_features, text_features, logit_scale = model(images, texts)
                     # features are accumulated in CPU tensors, otherwise GPU memory exhausted quickly
                     # however, system RAM is easily exceeded and compute time becomes problematic
