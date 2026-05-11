@@ -156,7 +156,7 @@ tokenizer = CLIPTokenizer.from_pretrained(model_name_or_path)
 input_ids = tokenizer(captions,  return_tensors="pt", padding=True).input_ids.to('cuda')
 input_pixels = processor(images=image, return_tensors="pt", padding=True).pixel_values.to('cuda')
 
-with torch.no_grad(), torch.cuda.amp.autocast("cuda"):
+with torch.no_grad(), torch.cuda.amp.autocast():
     image_features = model.encode_image(input_pixels)
     text_features = model.encode_text(input_ids)
     image_features /= image_features.norm(dim=-1, keepdim=True)
@@ -187,7 +187,7 @@ model = model.to(device)
 image = processor(Image.open(image_path)).unsqueeze(0).to(device)
 text = tokenizer(["a diagram", "a dog", "a cat"]).to(device)
 
-with torch.no_grad(), torch.cuda.amp.autocast("cuda"):
+with torch.no_grad(), torch.cuda.amp.autocast():
     image_features = model.encode_image(image)
     text_features = model.encode_text(text)
     image_features /= image_features.norm(dim=-1, keepdim=True)
