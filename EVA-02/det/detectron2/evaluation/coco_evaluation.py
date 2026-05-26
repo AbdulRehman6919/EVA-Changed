@@ -408,6 +408,31 @@ class COCOEvaluator(DatasetEvaluator):
         self._logger.info("Per-category {} AP: \n".format(iou_type) + table)
 
         results.update({"AP-" + name: ap for name, ap in results_per_category})
+
+        # ── Per-category AP@50 ──────────────────────────────────────────────
+        # precisions dim 0 = IoU thresholds; index 0 = IoU 0.50
+        results_per_category_ap50 = []
+        for idx, name in enumerate(class_names):
+            precision = precisions[0, :, idx, 0, -1]  # IoU=0.50 only
+            precision = precision[precision > -1]
+            ap50 = np.mean(precision) if precision.size else float("nan")
+            results_per_category_ap50.append(("{}".format(name), float(ap50 * 100)))
+
+        N_COLS_50 = min(6, len(results_per_category_ap50) * 2)
+        results_flatten_50 = list(itertools.chain(*results_per_category_ap50))
+        results_2d_50 = itertools.zip_longest(
+            *[results_flatten_50[i::N_COLS_50] for i in range(N_COLS_50)]
+        )
+        table_50 = tabulate(
+            results_2d_50,
+            tablefmt="pipe",
+            floatfmt=".3f",
+            headers=["category", "AP50"] * (N_COLS_50 // 2),
+            numalign="left",
+        )
+        self._logger.info("Per-category {} AP@50: \n".format(iou_type) + table_50)
+
+        results.update({"AP50-" + name: ap50 for name, ap50 in results_per_category_ap50})
         return results
 
 
