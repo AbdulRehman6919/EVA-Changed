@@ -133,7 +133,7 @@ model.roi_heads.positive_fraction = 0.75
 # ---------------------------------------------------------------------------
 for _bp in model.roi_heads.box_predictors:
     _bp.use_focal_loss = True
-    _bp.focal_loss_alpha = [0.15, 0.15, 0.85, 0.05]
+    _bp.focal_loss_alpha = [0.25, 0.20, 0.55, 0.05]
     _bp.focal_loss_gamma = 3.0
     _bp.box_reg_loss_type = "giou"
 
