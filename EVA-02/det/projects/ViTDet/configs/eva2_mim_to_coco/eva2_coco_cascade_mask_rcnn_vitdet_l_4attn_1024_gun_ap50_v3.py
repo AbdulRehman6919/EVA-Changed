@@ -152,7 +152,7 @@ for _bp in model.roi_heads.box_predictors:
 # ---------------------------------------------------------------------------
 optimizer.lr = 1e-5
 
-train.max_iter = 6000
+train.max_iter = 9000
 lr_multiplier = L(WarmupParamScheduler)(
     scheduler=L(CosineParamScheduler)(
         start_value=1.0,
