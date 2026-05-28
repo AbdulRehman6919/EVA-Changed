@@ -34,8 +34,9 @@ _DATASETS = {
         # "/kaggle/input/datasets/alirehman6666/weaponsdatasetoriginal/OriginalDataset",
         # "/kaggle/input/datasets/zubairtariq18/originalweaponsdatatset/OriginalDataset/OriginalDataset/annotations/armed_train.json",
         # "/kaggle/input/datasets/zubairtariq18/originalweaponsdatatset/OriginalDataset/OriginalDataset",
-        "/kaggle/input/datasets/naumanlatif1234/dataset-weight/OriginalDataset/OriginalDataset/annotations/armed_train.json",
-        "/kaggle/input/datasets/naumanlatif1234/dataset-weight/OriginalDataset",
+        "/kaggle/input/datasets/ziaawan132/weaponsgunsdataset/OriginalDataset/OriginalDataset/annotations/armed_train.json",
+        "/kaggle/input/datasets/ziaawan132/weaponsgunsdataset/OriginalDataset/OriginalDataset",
+        
     ),
     "armed_val": (
         # "/kaggle/working/OriginalDataset/annotations/armed_val.json",
@@ -44,10 +45,9 @@ _DATASETS = {
         # "/kaggle/input/datasets/alirehman6666/weaponsdatasetoriginal/OriginalDataset",
         # "/kaggle/input/datasets/zubairtariq18/originalweaponsdatatset/OriginalDataset/OriginalDataset/annotations/armed_val.json",
         # "/kaggle/input/datasets/zubairtariq18/originalweaponsdatatset/OriginalDataset/OriginalDataset",
-        "/kaggle/input/datasets/naumanlatif1234/dataset-weight/OriginalDataset/OriginalDataset/annotations/armed_val.json",
-        "/kaggle/input/datasets/naumanlatif1234/dataset-weight/OriginalDataset",
-        
-        ),
+        "/kaggle/input/datasets/ziaawan132/weaponsgunsdataset/OriginalDataset/OriginalDataset/annotations/armed_val.json",
+        "/kaggle/input/datasets/ziaawan132/weaponsgunsdataset/OriginalDataset/OriginalDataset",
+    ),
 }
 
 
