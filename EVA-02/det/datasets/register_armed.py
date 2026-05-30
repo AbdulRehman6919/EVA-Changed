@@ -45,9 +45,9 @@ _DATASETS = {
         # "/kaggle/input/datasets/alirehman6666/weaponsdatasetoriginal/OriginalDataset",
         # "/kaggle/input/datasets/zubairtariq18/originalweaponsdatatset/OriginalDataset/OriginalDataset/annotations/armed_val.json",
         # "/kaggle/input/datasets/zubairtariq18/originalweaponsdatatset/OriginalDataset/OriginalDataset",
-   "/kaggle/input/datasets/ziaawan132/weaponsgunsdataset/OriginalDataset/OriginalDataset/annotations/armed_val.json",
-        "/kaggle/input/datasets/ziaawan132/weaponsgunsdataset/OriginalDataset/OriginalDataset",
-    
+#    "/kaggle/input/datasets/ziaawan132/weaponsgunsdataset/OriginalDataset/OriginalDataset/annotations/armed_val.json",
+#         "/kaggle/input/datasets/ziaawan132/weaponsgunsdataset/OriginalDataset/OriginalDataset",
+    "/kaggle/input/datasets/naumanlatif1234/testing-dataset/TestingImages"
     ),
 }
 
