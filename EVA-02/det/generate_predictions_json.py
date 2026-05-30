@@ -219,15 +219,37 @@ def main():
         for name, val in zip(metric_names, coco_eval.stats):
             summary_lines.append(f"  {name:<18}: {val:.4f}")
 
-        summary_lines.append("\nPer-category AP@50:")
+        summary_lines.append("\nPer-category AP@50 / AP@[.5:.95]:")
+        import numpy as np
+        # coco_eval.eval["precision"] shape: [T, R, K, A, M]
+        #   T = IoU thresholds (default: 0.50:0.05:0.95 → 10 values)
+        #   R = recall thresholds (101 values)
+        #   K = categories (in the order of params.catIds)
+        #   A = area ranges (all, small, medium, large)
+        #   M = max detections
+        precisions = coco_eval.eval["precision"]   # shape [T, R, K, A, M]
+        cat_ids    = coco_eval.params.catIds        # dataset-level category ids
+
         for i, cls_name in enumerate(class_names):
-            coco_eval_cls = COCOeval(coco_gt, coco_dt, "bbox")
-            coco_eval_cls.params.catIds = [cats_sorted[i]["id"]]
-            coco_eval_cls.params.iouThrs = [0.50]
-            coco_eval_cls.evaluate()
-            coco_eval_cls.accumulate()
-            ap50 = coco_eval_cls.stats[0]
-            summary_lines.append(f"  {cls_name:<12}: AP@50 = {ap50:.4f}")
+            # Find index of this class in the catIds list
+            ds_cat_id = cats_sorted[i]["id"]
+            if ds_cat_id not in cat_ids:
+                summary_lines.append(f"  {cls_name:<12}: AP@50 = N/A  (not in eval catIds)")
+                continue
+            k_idx = cat_ids.index(ds_cat_id)
+
+            # IoU threshold index for 0.50:  iouThrs = [.50, .55, ..., .95]
+            iou_idx_50  = 0   # index 0 = IoU 0.50
+            # area index 0 = 'all', max-det index 2 = 100 detections
+            prec_ap50   = precisions[iou_idx_50, :, k_idx, 0, 2]
+            prec_all    = precisions[:, :, k_idx, 0, 2]
+
+            ap50 = float(np.mean(prec_ap50[prec_ap50 > -1])) if np.any(prec_ap50 > -1) else float("nan")
+            ap   = float(np.mean(prec_all[prec_all > -1]))   if np.any(prec_all  > -1) else float("nan")
+            summary_lines.append(
+                f"  {cls_name:<12}: AP@50 = {ap50:.4f}   AP@[.5:.95] = {ap:.4f}"
+            )
+
 
         summary_text = "\n".join(summary_lines)
         print("\n" + summary_text)
